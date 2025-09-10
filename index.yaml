@@ -1,0 +1,14 @@
+indexes:
+- kind: SensorData
+  properties:
+  - name: sysId
+  - name: date
+  - name: time
+
+- kind: ElWorkRecord
+  properties:
+  - name: year
+  - name: month
+  - name: regionId
+  - name: startTime
+    direction: asc

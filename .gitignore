@@ -1,0 +1,15 @@
+# Python virtualenv
+venv/
+
+# Byte-compiled / cache
+__pycache__/
+*.py[cod]
+
+# Environment files
+.env
+*.json
+
+# VSCodeやJetBrains IDEなどの設定
+.vscode/
+.idea/
+

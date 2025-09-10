@@ -1,0 +1,80 @@
+.panel{
+    float:left;
+    position:relative
+}
+#date {
+    width:20%;
+    height:150px;
+    background-color:#FF0000;
+}
+#selector {
+    background-color:#00FF00;
+    width:15%;
+    height:150px;
+}
+#mchart{
+    width:65%;
+    height:150px;
+}
+/* #weather{                     */
+/*     width:20%;                */
+/*     height:200px;             */
+/*     background-color:#0000FF; */
+/* }                             */
+#lamp{
+    width:100%;
+    height:500px;
+    background-color:#FF00FF;
+    overflow:scroll;
+}
+
+body {
+  font-size: 16px;
+  font-family: Verdana, sans-serif;
+}
+
+.container {
+  width: 300px;
+  margin: auto;
+}
+
+#app h1 {
+  font-size: 16px;
+  border-bottom: 1px solid #ddd;
+  padding: 16px 0;
+}
+
+#app li {
+  line-height: 1.5;
+}
+
+#app input[type="text"] {
+  padding: 2px;
+}
+
+.command {
+  font-size: 12px;
+  cursor: pointer;
+  color: #08c;
+}
+/* #sequence{                    */
+/*     width:50%;                */
+/*     height:500px;             */
+/*     background-color:#00FFFF; */
+/* }                             */
+/* #board{                       */
+/*     width:50%;                */
+/*     height:500px;             */
+/*     background-color:#FFFF00; */
+/* }                             */
+/* #logo{                        */
+/*     width:100%;               */
+/*     height:30px;              */
+/*     background-color:#000000; */
+/* }                             */
+/* #stage{                       */
+/*     width:100%;               */
+/*     height:100%;              */
+/* }                             */
+
+

@@ -1,0 +1,7 @@
+runtime: python39  # 使用するPythonのバージョン
+entrypoint: gunicorn -b :$PORT main:app  # Flaskアプリを起動するコマンド
+
+handlers:
+- url: /.*
+  script: auto
+

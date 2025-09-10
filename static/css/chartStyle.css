@@ -1,0 +1,22 @@
+path{
+    fill:none
+}
+.y path,.x path{
+   fill:none;
+   shape-rendering:cripEdges;
+   stroke:#000; 
+}
+.cpath{
+    fill:none;
+    stroke-width:1;
+
+}
+.axis .minor line{
+    stroke:#777;
+    stroke-dasharray:2,2;
+}
+.legend rect {
+    fill:white;
+    stroke:black;
+    opacity:0.8;
+}

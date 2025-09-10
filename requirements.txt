@@ -1,0 +1,9 @@
+Flask
+gunicorn
+google-cloud-datastore
+openai==0.28.0
+pymupdf
+python-docx
+flask-cors
+
+

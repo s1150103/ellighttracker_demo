@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <link rel="stylesheet" title="text/css" href="/static/css/Form.css"/>
+    <script type="text/javascript" src="/static/lib/jquery-1.11.3.min.js"></script>
+    <script src="/static/lib/vue.js"></script>
+    <script src="/static/lib/moment-with-locales.min.js"></script>
+    <script src="/static/lib/moment-timezone-with-data-2010-2020.min.js"></script>
+    <script src="/static/js/timeMath.js"></script>
+    <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+    <title>TEST FORM</title>
+</head>
+<!--
+ 　表のテンプレート. vuefrom.jsでform-tableとしてコンポーネントを登録してある
+ 　dataとcolumnsを指定して使う.指定はvue.jsのv-bindを用いる
+ パラメータ概要
+ 　data:実際のデータ
+ 　columns:項目のリスト
+ -->
+<script type="text/x-template" id="form-table-template">
+    <div>
+        <table class="ftable" border=1 >
+            <thead>
+                <tr>
+                    <th v-for=" (key,index) in columns" v-bind:class="'th-'+index" >
+                        {{ key }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="entry in data">
+                    <td v-for="key in columns">
+                        {{ entry[key] }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+<!-- 表のテンプレート終わり -->
+<!-- 以下実際に描画される本コンテンツ -->
+<body>
+    <div id="form">
+        <section class="sheet">
+            <h1> {{ title }}</h1>
+            <h2>{{ year }}年　　　　　{{ month }}月{{ date }}日</h2>
+            <form-table class="stamp" align="right" v-bind:data="stampData" v-bind:columns="stampTable"></form-table>
+            <table class="main" border=1 align="center">
+                <thead>
+                <tr>
+                    <th>装置名</th>
+                    <th v-for="item in dataJson.eqList"  colspan="2" class="tr1">
+                        {{ item["name"] }}
+                    </th>
+                </tr>
+                <tr>
+                    <th>日付</th>
+                    <th v-for="(item, index) in tableColumns" class="tr2">{{ item }}</th>
+                    <th v-for="item in tableColumns">{{ item }}</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="object in dataJson.dataObjectList">
+                    <td >{{ object["date"] }}</td>
+                    <td >{{ object["cycle1"] }}</td>
+                    <td >{{ object["time1"] }}</td>
+                    <td >{{ object["cycle2"] }}</td>
+                    <td >{{ object["time2"] }}</td>
+                </tr>
+                </tbody>
+            </table>
+        <table border="3" class="stat" align="center">
+            <tr>
+                <td>平均</td>
+                <td v-for="mean in dataJson.dataObjectList.reduce(objectMean)">{{  mean }}</td>
+            </tr>
+            <tr>
+                <td>最大</td>
+                <td v-for="max in dataJson.dataObjectList.reduce(objectMax)">{{ max }}</td>
+            </tr>
+            <tr>
+                <td>最小</td>
+                <td v-for="min in dataJson.dataObjectList.reduce(objectMin)">{{ min }}</td>
+            </tr>
+            <tr>
+                <td>合計</td>
+                <td v-for="sum in dataJson.dataObjectList.reduce(objectSum)">{{ sum }}</td>
+            </tr>
+
+        </table>
+            <table border="2" align="center" class="totals">
+                <tr>
+                    <td class="t1">総運転時間</td>
+                    <td>{{ totalUptime(dataJson.dataObjectList.reduce(objectSum)) }}</td>
+                </tr>
+                <tr>
+                   <td class="t1">総運転回数</td>
+                    <td>{{ totalCycle(dataJson.dataObjectList.reduce(objectSum)) }}</td>
+                </tr>
+            </table>
+        </section>
+    </div>
+</body>
+<!-- ここまで-->
+<script src="/static/js/kvueform3.js"></script>
+</html>

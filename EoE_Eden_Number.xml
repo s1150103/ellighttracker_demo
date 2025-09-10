@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration>
+<eoe_eden>
+    <!--
+                :施設用IDtagを追加 TODO
+        clientタグ:一つにつきラズパイ一つに対応 
+    	dataタグ: numがSensorDataの各変数に対応
+    	typeタグ: その変数に入っているデータのタイプ現状はSIMPLEX,LAMPLIST,NONEの三種類
+        alert-mes:メールを出す際の閾値とメールを送出するかの指定(bool)
+    	mesタグ:メールに記載する文面を記述.typeがLAMPLISTの場合id属性とalert属性及びtoもしくはbefore/after属性を記載
+
+    	以下は変更に伴い削除alert-mesに統合した。
+    	alertタグ: SIMPLEXのときのみ使用メール送信が必要かどうかの設定 true/false
+    	thresタグ:typeがSIMPLEXのときに指定、アラート出す
+    -->
+    <region num="1">
+        <name>会津若松市 市営住宅</name>
+        <client sysid="1">
+            <data num="1">
+                <name>揚水ポンプNo.1</name>
+                <type>CHANNEL32</type>
+                <alert-mes alert="false" thres="6.4">基準値over</alert-mes>
+            </data>
+            <data num="2">
+                <name>揚水ポンプNo.2</name>
+                <type>NONE</type>
+                <alert-mes alert="false" thres="6.4">基準値over</alert-mes>
+            </data>
+            <data num="3">
+                <type>NONE</type>
+            </data>
+        </client>
+    </region>
+    <region num="5">
+        <client sysid="2">
+            <data num="1">
+                <type>LAMPLIST</type>
+                <!--
+                     alertをtrueにするときはtoもしくはbefore/afterの組を指定する
+                    toはその値になった段階でアラートを送出する
+                    before/afterは前後関係を指定したい場合に使用する
+                    id はデータ列の先頭のidと合わせる
+                            アラートが必要な分のみでよい
+                 -->
+                <mes id="5" alert="false" to="0">揚水ポンプNo.1</mes>
+                <mes id="6" alert="true" before="3" after="0">揚水ポンプNo.2</mes>
+            </data>
+            <data num="2" >
+                <type>NONE</type>
+            </data>
+            <data num="3" >
+                <type>NONE</type>
+            </data>
+        </client>
+    </region>
+    <region num="2">
+        <name>新システム</name>
+       <client sysid="DAQA001">
+        <data num="1">
+            <type>CHANNEL32</type>
+        </data>
+        <data num="2">
+              <type>NONE</type>
+        </data>
+        <data num="3">
+              <type>NONE</type>
+        </data>
+       </client>
+    </region>
+    <region num="3">
+        <name>北塩原村　大久保</name>
+        <client sysid="DITI998">
+           <data num="1">
+               <type>CHANNEL32</type>
+           </data>
+           <data num="2">
+               <type>NONE</type>
+           </data>
+           <data num="3">
+               <type>NONE</type>
+           </data>
+       </client>
+    </region>
+    <region num="4">
+        <name>北塩原村　樟</name>
+        <client sysid="DAQA004">
+           <data num="1">
+               <type>CHANNEL32</type>
+           </data>
+           <data num="2">
+               <type>NONE</type>
+           </data>
+           <data num="3">
+               <type>NONE</type>
+           </data>
+       </client>
+    </region>
+    <region num="5">
+        <name>裏磐梯　回顧２</name>
+        <client sysid="DAQA002">
+           <data num="1">
+               <type>CHANNEL32</type>
+           </data>
+           <data num="2">
+               <type>NONE</type>
+           </data>
+           <data num="3">
+               <type>NONE</type>
+           </data>
+       </client>
+    </region>
+<region num="6">
+        <name>北塩原村　第３水源</name>
+        <client sysid="DAQA005">
+           <data num="1">
+               <type>CHANNEL32</type>
+           </data>
+           <data num="2">
+               <type>NONE</type>
+           </data>
+           <data num="3">
+               <type>NONE</type>
+           </data>
+       </client>
+    </region>
+</eoe_eden>
+

@@ -1,0 +1,936 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Modern Pump Monitoring Dashboard</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.4/moment.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            color: #f8fafc;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Header Styles */
+        .header {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #3b82f6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-controls {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .date-input {
+            background: rgba(51, 65, 85, 0.6);
+            border: 1px solid #475569;
+            border-radius: 8px;
+            padding: 8px 12px;
+            color: #f8fafc;
+            font-size: 14px;
+        }
+
+        .btn {
+            background: linear-gradient(45deg, #3b82f6, #06b6d4);
+            border: none;
+            border-radius: 8px;
+            padding: 10px 20px;
+            color: white;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+
+        /* Status Cards */
+        .status-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .status-card {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .status-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .status-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .status-title {
+            color: #94a3b8;
+            font-size: 14px;
+        }
+
+        .status-value {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 5px 0;
+        }
+
+        .status-blue { color: #3b82f6; }
+        .status-orange { color: #f97316; }
+        .status-green { color: #10b981; }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+
+        .indicator-blue { background: #3b82f6; }
+        .indicator-orange { background: #f97316; }
+        .indicator-green { background: #10b981; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        /* Chart Section */
+        .chart-section {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 20px;
+            font-weight: bold;
+        }
+
+        .chart-controls {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .toggle {
+            position: relative;
+            width: 50px;
+            height: 24px;
+            background: #475569;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .toggle.active {
+            background: #3b82f6;
+        }
+
+        .toggle::after {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            transition: all 0.3s ease;
+        }
+
+        .toggle.active::after {
+            transform: translateX(26px);
+        }
+
+        #chart {
+            width: 100%;
+            height: 400px;
+            background: rgba(15, 23, 42, 0.5);
+            border-radius: 8px;
+            border: 1px solid #374151;
+        }
+
+        /* Table Styles */
+        .table-section {
+            background: rgba(30, 41, 59, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(71, 85, 105, 0.3);
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .table th {
+            background: rgba(51, 65, 85, 0.6);
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            color: #94a3b8;
+            border-bottom: 1px solid #475569;
+        }
+
+        .table td {
+            padding: 12px;
+            border-bottom: 1px solid #374151;
+        }
+
+        .table tr:hover {
+            background: rgba(51, 65, 85, 0.3);
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge-blue {
+            background: rgba(59, 130, 246, 0.2);
+            color: #3b82f6;
+        }
+
+        .badge-orange {
+            background: rgba(249, 115, 22, 0.2);
+            color: #f97316;
+        }
+
+        /* Grid Lines Styles */
+        .grid line {
+            stroke: #374151;
+            stroke-width: 1;
+            opacity: 0.6;
+        }
+
+        .grid path {
+            stroke: #374151;
+            stroke-width: 1;
+        }
+
+        .grid text {
+            fill: #94a3b8;
+            font-size: 12px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .chart-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 15px;
+            }
+
+            .chart-controls {
+                flex-wrap: wrap;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <h1>🌊 Aqua Crew Dashboard</h1>
+            <div class="header-controls">
+                <input type="date" id="dateInput" class="date-input" />
+                <button id="refreshBtn" class="btn">更新</button>
+            </div>
+        </header>
+
+        <!-- Status Cards -->
+        <div class="status-grid">
+            <div class="status-card">
+                <div class="status-header">
+                    <div>
+                        <div class="status-title">ポンプ No.1</div>
+                        <div class="status-value status-blue">待機中</div>
+                    </div>
+                    <div class="status-indicator indicator-blue"></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="status-indicator indicator-blue" style="animation: none;"></div>
+                    <span style="color: #94a3b8; font-size: 14px;">電流値: 0.0A</span>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                    サイクル: <span id="cycle1">0</span>回 | 稼働時間: <span id="runtime1">0</span>分
+                </div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-header">
+                    <div>
+                        <div class="status-title">ポンプ No.2</div>
+                        <div class="status-value status-orange">待機中</div>
+                    </div>
+                    <div class="status-indicator indicator-orange"></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="status-indicator indicator-orange" style="animation: none;"></div>
+                    <span style="color: #94a3b8; font-size: 14px;">電流値: 0.0A</span>
+                </div>
+                <div style="margin-top: 10px; font-size: 12px; color: #64748b;">
+                    サイクル: <span id="cycle2">0</span>回 | 稼働時間: <span id="runtime2">0</span>分
+                </div>
+            </div>
+
+            <div class="status-card">
+                <div class="status-header">
+                    <div>
+                        <div class="status-title">データソース</div>
+                        <div class="status-value status-green" id="dataSource">サンプル</div>
+                    </div>
+                    <div class="status-indicator indicator-green"></div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <div class="status-indicator indicator-green" style="animation: none;"></div>
+                    <span style="color: #94a3b8; font-size: 14px;" id="lastUpdate">最終更新: --</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button onclick="loadRealData()" class="btn" style="font-size: 12px; padding: 6px 12px;">
+                        リアルデータ取得
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Chart Section -->
+        <div class="chart-section">
+            <div class="chart-header">
+                <h2 class="chart-title">電流値監視グラフ</h2>
+                <div class="chart-controls">
+                    <div class="toggle-group">
+                        <div class="status-indicator indicator-blue" style="animation: none;"></div>
+                        <span>No.1</span>
+                        <div class="toggle active" id="pump1Toggle"></div>
+                    </div>
+                    <div class="toggle-group">
+                        <div class="status-indicator indicator-orange" style="animation: none;"></div>
+                        <span>No.2</span>
+                        <div class="toggle active" id="pump2Toggle"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="chart"></div>
+        </div>
+
+        <!-- Data Table -->
+        <div class="table-section">
+            <h3 style="font-size: 18px; font-weight: bold; margin-bottom: 15px;">稼働情報</h3>
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>種別</th>
+                        <th>状態</th>
+                        <th>電流値</th>
+                        <th>最終更新</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td style="font-weight: 600;">ポンプ No.1</td>
+                        <td><span class="status-badge badge-blue">運転中</span></td>
+                        <td style="color: #3b82f6; font-weight: 600;">6.8A</td>
+                        <td style="color: #94a3b8;">2分前</td>
+                    </tr>
+                    <tr>
+                        <td style="font-weight: 600;">ポンプ No.2</td>
+                        <td><span class="status-badge badge-orange">待機中</span></td>
+                        <td style="color: #f97316; font-weight: 600;">0.2A</td>
+                        <td style="color: #94a3b8;">2分前</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script>
+        // Global store for pump data
+        var store = {
+            countCycle: 0,
+            countCycle2: 0,
+            sum1: 0,
+            sum2: 0,
+            elec1: 0,
+            elec2: 0
+        };
+
+        // Modern LOADER with improved error handling and UI feedback
+        var LOADER = {
+            downloadJson: function(sid, date) {
+                this.showLoading();
+                $.ajax({
+                    url: "https://crud2-171605.appspot.com/ellighttracker2?mode=j&date=" + date + "&sid=" + sid,
+                    dataType: 'json',
+                    timeout: 10000,
+                    error: (xhr, status, error) => {
+                        this.hideLoading();
+                        this.showError(`データの取得に失敗しました: ${date}`);
+                    },
+                    success: this.drawGraph(date)
+                });
+            },
+
+            drawGraph: function(date) {
+                return (json, status) => {
+                    this.hideLoading();
+                    var cdate = moment(date, "YYYY-MM-DD").tz("Asia/Tokyo");
+                    
+                    if (window.modernGraph) {
+                        window.modernGraph.updateWithRealData(json.data_lists, cdate.toDate());
+                        this.updateStatusCards(json.data_lists);
+                    }
+                }
+            },
+
+            downloadXml: function(sid, date) {
+                this.showLoading();
+                $.ajax({
+                    url: "https://crud2-171605.appspot.com/ellighttracker2?mode=s&date=" + date + "&sid=" + sid,
+                    type: 'get',
+                    dataType: 'xml',
+                    crossDomain: true,
+                    timeout: 10000,
+                    error: (xhr, status, error) => {
+                        this.hideLoading();
+                        this.showError(`XMLデータの取得に失敗しました: ${date}`);
+                    },
+                    success: this.parseXml
+                });
+            },
+
+            parseXml: function(xml, status) {
+                LOADER.hideLoading();
+                if (status !== 'success') return;
+
+                var date = document.getElementById('dateInput').value;
+                var data1_list = [];
+                var data2_list = [];
+                var waterLevelList = [];
+                var preData = 0;
+                var preData2 = 0;
+
+                $(xml).find('result').each(function() {
+                    $(this).find('data').each(function() {
+                        if ($(this).attr('Time') !== 'null') {
+                            data1_list.push({
+                                Time: moment(date + " " + $(this).attr('Time'), "YYYY-MM-DD HH:mm:ss").format(),
+                                data: parseFloat($(this).attr('Data1'))
+                            });
+
+                            data2_list.push({
+                                Time: moment(date + " " + $(this).attr('Time'), "YYYY-MM-DD HH:mm:ss").format(),
+                                data: parseFloat($(this).attr('Data2'))
+                            });
+
+                            waterLevelList.push({
+                                Time: moment(date + " " + $(this).attr('Time'), "YYYY-MM-DD HH:mm:ss").format(),
+                                data: parseFloat($(this).attr('Data3'))
+                            });
+                        }
+                    });
+                });
+
+                // Calculate pump cycles and runtime
+                LOADER.calculatePumpStats(data1_list, data2_list);
+
+                var cdate = moment(date).tz("Asia/Tokyo");
+                if (window.modernGraph) {
+                    window.modernGraph.updateWithRealData([data1_list, data2_list], cdate.toDate());
+                    LOADER.updateStatusCards([data1_list, data2_list]);
+                }
+            },
+
+            calculatePumpStats: function(data1_list, data2_list) {
+                // Reset counters
+                store.countCycle = 0;
+                store.countCycle2 = 0;
+                store.sum1 = 0;
+                store.sum2 = 0;
+
+                // Calculate for pump 1
+                let preData = 0;
+                let startTime = null;
+                for (let i = 0; i < data1_list.length; i++) {
+                    const currentData = data1_list[i].data;
+                    if (preData == 0.0 && currentData > 0) {
+                        store.countCycle++;
+                        startTime = moment(data1_list[i].Time);
+                    }
+                    if (preData > 0 && currentData == 0 && startTime) {
+                        store.sum1 += Math.abs(startTime.diff(data1_list[i].Time, 'minutes'));
+                    }
+                    preData = currentData;
+                }
+
+                // Calculate for pump 2
+                preData = 0;
+                startTime = null;
+                for (let i = 0; i < data2_list.length; i++) {
+                    const currentData = data2_list[i].data;
+                    if (preData == 0.0 && currentData > 0) {
+                        store.countCycle2++;
+                        startTime = moment(data2_list[i].Time);
+                    }
+                    if (preData > 0 && currentData == 0 && startTime) {
+                        store.sum2 += Math.abs(startTime.diff(data2_list[i].Time, 'minutes'));
+                    }
+                    preData = currentData;
+                }
+
+                // Store latest values
+                if (data1_list.length > 0) store.elec1 = data1_list[data1_list.length - 1].data;
+                if (data2_list.length > 0) store.elec2 = data2_list[data2_list.length - 1].data;
+            },
+
+            updateStatusCards: function(dataLists) {
+                if (dataLists && dataLists.length >= 2) {
+                    const pump1Status = store.elec1 > 1 ? "運転中" : "待機中";
+                    const pump2Status = store.elec2 > 1 ? "運転中" : "待機中";
+                    
+                    // Update status cards with real data
+                    document.querySelector('.status-card:nth-child(1) .status-value').textContent = pump1Status;
+                    document.querySelector('.status-card:nth-child(1) .status-value').className = 
+                        `status-value ${pump1Status === "運転中" ? "status-blue" : "status-orange"}`;
+                    
+                    document.querySelector('.status-card:nth-child(2) .status-value').textContent = pump2Status;
+                    document.querySelector('.status-card:nth-child(2) .status-value').className = 
+                        `status-value ${pump2Status === "運転中" ? "status-blue" : "status-orange"}`;
+
+                    // Update current values
+                    document.querySelectorAll('.status-card span')[0].textContent = `電流値: ${store.elec1.toFixed(1)}A`;
+                    document.querySelectorAll('.status-card span')[1].textContent = `電流値: ${store.elec2.toFixed(1)}A`;
+                    
+                    // Update table
+                    const tableRows = document.querySelectorAll('.table tbody tr');
+                    if (tableRows.length >= 2) {
+                        tableRows[0].children[1].innerHTML = `<span class="status-badge ${pump1Status === "運転中" ? "badge-blue" : "badge-orange"}">${pump1Status}</span>`;
+                        tableRows[0].children[2].textContent = `${store.elec1.toFixed(1)}A`;
+                        tableRows[0].children[2].style.color = pump1Status === "運転中" ? "#3b82f6" : "#f97316";
+                        
+                        tableRows[1].children[1].innerHTML = `<span class="status-badge ${pump2Status === "運転中" ? "badge-blue" : "badge-orange"}">${pump2Status}</span>`;
+                        tableRows[1].children[2].textContent = `${store.elec2.toFixed(1)}A`;
+                        tableRows[1].children[2].style.color = pump2Status === "運転中" ? "#3b82f6" : "#f97316";
+                    }
+                }
+            },
+
+            showLoading: function() {
+                const btn = document.getElementById('refreshBtn');
+                btn.disabled = true;
+                btn.textContent = '読込中...';
+                btn.style.opacity = '0.6';
+            },
+
+            hideLoading: function() {
+                const btn = document.getElementById('refreshBtn');
+                btn.disabled = false;
+                btn.textContent = '更新';
+                btn.style.opacity = '1';
+            },
+
+            showError: function(message) {
+                // Create error notification
+                const errorDiv = document.createElement('div');
+                errorDiv.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: #dc2626;
+                    color: white;
+                    padding: 15px 20px;
+                    border-radius: 8px;
+                    z-index: 1000;
+                    box-shadow: 0 4px 15px rgba(220, 38, 38, 0.3);
+                `;
+                errorDiv.textContent = message;
+                document.body.appendChild(errorDiv);
+                
+                setTimeout(() => {
+                    if (errorDiv.parentNode) {
+                        errorDiv.parentNode.removeChild(errorDiv);
+                    }
+                }, 5000);
+            }
+        };
+
+        class ModernPumpGraph {
+            constructor() {
+                this.width = 1100;
+                this.height = 350;
+                this.margin = { top: 20, right: 30, bottom: 40, left: 60 };
+                this.colors = ['#3b82f6', '#f97316']; // Blue and Orange
+                this.pump1Visible = true;
+                this.pump2Visible = true;
+                this.isRealData = false;
+                this.init();
+            }
+
+            init() {
+                // Set today's date
+                const today = moment().format('YYYY-MM-DD');
+                document.getElementById('dateInput').value = today;
+
+                // Create SVG
+                this.createSVG();
+                
+                // Generate sample data initially
+                this.generateSampleData();
+                
+                // Draw chart
+                this.drawChart();
+
+                // Set up event listeners
+                this.setupEventListeners();
+
+                // Make this globally accessible
+                window.modernGraph = this;
+            }
+
+            createSVG() {
+                const chartDiv = d3.select('#chart');
+                chartDiv.selectAll('*').remove();
+
+                this.svg = chartDiv
+                    .append('svg')
+                    .attr('width', '100%')
+                    .attr('height', this.height)
+                    .attr('viewBox', `0 0 ${this.width} ${this.height}`);
+
+                this.g = this.svg.append('g')
+                    .attr('transform', `translate(${this.margin.left},${this.margin.top})`);
+            }
+
+            generateSampleData() {
+                const date = moment(document.getElementById('dateInput').value);
+                this.data = [];
+
+                // Generate data for 2 pumps
+                for (let pump = 0; pump < 2; pump++) {
+                    const pumpData = [];
+                    for (let hour = 0; hour < 24; hour++) {
+                        for (let minute = 0; minute < 60; minute += 15) {
+                            const time = date.clone().hour(hour).minute(minute);
+                            let baseValue;
+                            
+                            if (pump === 0) {
+                                // Pump 1: varies between 6.5-7.2A during operation
+                                baseValue = 6.8 + Math.sin(hour / 4) * 0.3;
+                            } else {
+                                // Pump 2: mostly standby, occasional spikes
+                                baseValue = hour % 8 === 0 ? 5.5 + Math.random() * 1.5 : 0.2;
+                            }
+                            
+                            const noise = (Math.random() - 0.5) * 0.3;
+                            const value = Math.max(0, baseValue + noise);
+                            
+                            pumpData.push({
+                                time: time.toDate(),
+                                value: value,
+                                pump: pump
+                            });
+                        }
+                    }
+                    this.data.push(pumpData);
+                }
+            }
+
+            drawChart() {
+                const width = this.width - this.margin.left - this.margin.right;
+                const height = this.height - this.margin.top - this.margin.bottom;
+
+                // Clear previous chart
+                this.g.selectAll('*').remove();
+
+                // Scales
+                const xScale = d3.scaleTime()
+                    .domain(d3.extent(this.data[0], d => d.time))
+                    .range([0, width]);
+
+                const yScale = d3.scaleLinear()
+                    .domain([0, 10])
+                    .range([height, 0]);
+
+                // Line generator
+                const line = d3.line()
+                    .x(d => xScale(d.time))
+                    .y(d => yScale(d.value))
+                    .curve(d3.curveMonotoneX);
+
+                // Axes
+                const xAxis = d3.axisBottom(xScale)
+                    .tickFormat(d3.timeFormat('%H:%M'))
+                    .ticks(d3.timeHour.every(2));
+
+                const yAxis = d3.axisLeft(yScale)
+                    .tickSize(-width)
+                    .tickFormat(d => d + 'A');
+
+                // Add grid
+                this.g.append('g')
+                    .attr('class', 'grid')
+                    .attr('transform', `translate(0,${height})`)
+                    .call(xAxis);
+
+                this.g.append('g')
+                    .attr('class', 'grid')
+                    .call(yAxis);
+
+                // Add warning line at 6.4A
+                this.g.append('line')
+                    .attr('x1', 0)
+                    .attr('x2', width)
+                    .attr('y1', yScale(6.4))
+                    .attr('y2', yScale(6.4))
+                    .style('stroke', '#dc2626')
+                    .style('stroke-width', 2)
+                    .style('stroke-dasharray', '5,5')
+                    .style('opacity', 0.8);
+
+                // Add warning line label
+                this.g.append('text')
+                    .attr('x', width - 80)
+                    .attr('y', yScale(6.4) - 8)
+                    .text('警告線 (6.4A)')
+                    .style('fill', '#dc2626')
+                    .style('font-size', '12px')
+                    .style('font-weight', 'bold');
+
+                // Draw lines
+                this.data.forEach((pumpData, i) => {
+                    const path = this.g.append('path')
+                        .datum(pumpData)
+                        .attr('id', `pump-${i}`)
+                        .attr('fill', 'none')
+                        .attr('stroke', this.colors[i])
+                        .attr('stroke-width', 3)
+                        .attr('d', line)
+                        .style('opacity', (i === 0 && this.pump1Visible) || (i === 1 && this.pump2Visible) ? 0.9 : 0.1);
+
+                    // Add glow effect
+                    this.g.append('path')
+                        .datum(pumpData)
+                        .attr('fill', 'none')
+                        .attr('stroke', this.colors[i])
+                        .attr('stroke-width', 6)
+                        .attr('d', line)
+                        .style('opacity', ((i === 0 && this.pump1Visible) || (i === 1 && this.pump2Visible)) ? 0.3 : 0.05)
+                        .style('filter', 'blur(3px)');
+                });
+
+                // Add labels
+                this.g.append('text')
+                    .attr('x', width / 2)
+                    .attr('y', height + 35)
+                    .style('text-anchor', 'middle')
+                    .style('fill', '#94a3b8')
+                    .style('font-size', '14px')
+                    .text('時間');
+
+                this.g.append('text')
+                    .attr('transform', 'rotate(-90)')
+                    .attr('y', -40)
+                    .attr('x', -height / 2)
+                    .style('text-anchor', 'middle')
+                    .style('fill', '#94a3b8')
+                    .style('font-size', '14px')
+                    .text('電流値 (A)');
+            }
+
+            updateWithRealData(dataLists, date) {
+                this.data = [];
+                this.isRealData = true;
+                
+                // Convert real data to our format
+                dataLists.forEach((dataList, pumpIndex) => {
+                    const pumpData = dataList.map(d => ({
+                        time: new Date(d.Time),
+                        value: d.data,
+                        pump: pumpIndex
+                    }));
+                    this.data.push(pumpData);
+                });
+                
+                this.drawChart();
+            }
+
+            setupEventListeners() {
+                // Refresh button - now loads real data
+                document.getElementById('refreshBtn').addEventListener('click', () => {
+                    const date = document.getElementById('dateInput').value;
+                    const sid = "3"; // Station ID - you may want to make this configurable
+                    
+                    // Try XML first, fallback to JSON
+                    LOADER.downloadXml(sid, date);
+                });
+
+                // Date input
+                document.getElementById('dateInput').addEventListener('change', () => {
+                    if (this.isRealData) {
+                        // If we were showing real data, fetch new data for the new date
+                        const date = document.getElementById('dateInput').value;
+                        const sid = "3";
+                        LOADER.downloadXml(sid, date);
+                    } else {
+                        // Otherwise just regenerate sample data
+                        this.generateSampleData();
+                        this.drawChart();
+                    }
+                });
+
+                // Toggle switches
+                document.getElementById('pump1Toggle').addEventListener('click', () => {
+                    this.pump1Visible = !this.pump1Visible;
+                    document.getElementById('pump1Toggle').classList.toggle('active');
+                    this.updateLineVisibility();
+                });
+
+                document.getElementById('pump2Toggle').addEventListener('click', () => {
+                    this.pump2Visible = !this.pump2Visible;
+                    document.getElementById('pump2Toggle').classList.toggle('active');
+                    this.updateLineVisibility();
+                });
+            }
+
+            updateLineVisibility() {
+                const pump1Line = this.svg.select('#pump-0');
+                const pump2Line = this.svg.select('#pump-1');
+                
+                pump1Line.style('opacity', this.pump1Visible ? 0.9 : 0.1);
+                pump2Line.style('opacity', this.pump2Visible ? 0.9 : 0.1);
+            }
+        }
+
+        // Initialize the dashboard
+        document.addEventListener('DOMContentLoaded', () => {
+            new ModernPumpGraph();
+        });
+
+        // Global function to load real data
+        function loadRealData() {
+            const date = document.getElementById('dateInput').value;
+            const sid = "3"; // Station ID - adjust as needed
+            LOADER.downloadXml(sid, date);
+        }
+
+        // Enhanced LOADER updateStatusCards function
+        LOADER.updateStatusCards = function(dataLists) {
+            if (dataLists && dataLists.length >= 2) {
+                const pump1Status = store.elec1 > 1 ? "運転中" : "待機中";
+                const pump2Status = store.elec2 > 1 ? "運転中" : "待機中";
+                
+                // Update status cards with real data
+                document.querySelector('.status-card:nth-child(1) .status-value').textContent = pump1Status;
+                document.querySelector('.status-card:nth-child(1) .status-value').className = 
+                    `status-value ${pump1Status === "運転中" ? "status-blue" : "status-orange"}`;
+                
+                document.querySelector('.status-card:nth-child(2) .status-value').textContent = pump2Status;
+                document.querySelector('.status-card:nth-child(2) .status-value').className = 
+                    `status-value ${pump2Status === "運転中" ? "status-blue" : "status-orange"}`;
+
+                // Update current values
+                document.querySelectorAll('.status-card span')[0].textContent = `電流値: ${store.elec1.toFixed(1)}A`;
+                document.querySelectorAll('.status-card span')[1].textContent = `電流値: ${store.elec2.toFixed(1)}A`;
+                
+                // Update cycle and runtime info
+                document.getElementById('cycle1').textContent = store.countCycle;
+                document.getElementById('runtime1').textContent = store.sum1;
+                document.getElementById('cycle2').textContent = store.countCycle2;
+                document.getElementById('runtime2').textContent = store.sum2;
+                
+                // Update data source
+                document.getElementById('dataSource').textContent = "リアルデータ";
+                document.getElementById('lastUpdate').textContent = `最終更新: ${moment().format('HH:mm')}`;
+                
+                // Update table
+                const tableRows = document.querySelectorAll('.table tbody tr');
+                if (tableRows.length >= 2) {
+                    tableRows[0].children[1].innerHTML = `<span class="status-badge ${pump1Status === "運転中" ? "badge-blue" : "badge-orange"}">${pump1Status}</span>`;
+                    tableRows[0].children[2].textContent = `${store.elec1.toFixed(1)}A`;
+                    tableRows[0].children[2].style.color = pump1Status === "運転中" ? "#3b82f6" : "#f97316";
+                    
+                    tableRows[1].children[1].innerHTML = `<span class="status-badge ${pump2Status === "運転中" ? "badge-blue" : "badge-orange"}">${pump2Status}</span>`;
+                    tableRows[1].children[2].textContent = `${store.elec2.toFixed(1)}A`;
+                    tableRows[1].children[2].style.color = pump2Status === "運転中" ? "#3b82f6" : "#f97316";
+                }
+            }
+        };
+    </script>
+</body>
+</html>

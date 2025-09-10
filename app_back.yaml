@@ -1,0 +1,22 @@
+runtime: python
+env: flex
+runtime_config:
+  operating_system: "ubuntu22"
+  runtime_version: "3.10"
+  
+entrypoint: gunicorn -b :$PORT main:app
+
+readiness_check:
+  path: "/"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+  success_threshold: 2
+  app_start_timeout_sec: 300
+
+liveness_check:
+  path: "/"
+  check_interval_sec: 5
+  timeout_sec: 4
+  failure_threshold: 2
+

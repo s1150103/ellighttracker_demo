@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>センサーデータダウンロード</title>
+</head>
+<body>
+  <h2>センサーデータダウンロード</h2>
+  <button onclick="downloadSensorData()">データをCSVでダウンロード</button>
+
+  <script>
+    async function downloadSensorData() {
+      const sysId = "YOUR_SYS_ID";      // ← 実際のsysIdを入力
+      const date = "2025-03-28";        // ← 実際の日付を入力
+
+      const response = await fetch("/ellighttracker2", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded"
+        },
+        body: new URLSearchParams({
+          mode: "j",
+          sysId: sysId,
+          date: date
+        })
+      });
+
+      const json = await response.json();
+      const rows = [["ID", "Data", "Time", "UDT"]];
+
+      json.data_lists.forEach(item => {
+        rows.push([item.ID, item.data, item.Time, item.UDT]);
+      });
+
+      // CSV作成
+      const csv = rows.map(row => row.join(",")).join("\n");
+      const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+      const url = URL.createObjectURL(blob);
+
+      // ダウンロード実行
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", `SensorData_${date}_${sysId}.csv`);
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+  </script>
+</body>
+</html>
+

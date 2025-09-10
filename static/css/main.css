@@ -1,0 +1,208 @@
+h1 {
+	font-size: 1.25em;
+	font-weight: bold;
+}
+
+#result {
+	display:inline;
+	font-size: 13px;
+	width: 320px;
+	border: 1px dotted gray;
+	text-align: left;
+}
+
+ .btn1 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+
+    .btn1 + .btn1 {
+        margin-left: 10px;
+    }
+    .btn1.inactive {
+        opacity: 0.5;
+    }
+
+    .btn1:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+    .btn2 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn2 + .btn2 {
+        margin-left: 10px;
+    }
+    .btn2.inactive {
+        opacity: 0.5;
+    }
+
+    .btn2:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+   .btn3 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .bt3 + .btn3 {
+        margin-left: 10px;
+    }
+    .btn3.inactive {
+        opacity: 0.5;
+    }
+
+    .btn3:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+   .btn4 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn4 + .btn4 {
+        margin-left: 10px;
+    }
+    .btn2.inactive {
+        opacity: 0.5;
+    }
+
+    .btn4:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+   .btn5 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn5 + .btn5 {
+        margin-left: 10px;
+    }
+    .btn5.inactive {
+        opacity: 0.5;
+    }
+
+    .btn5:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+   .btn6 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn6 + .btn6 {
+        margin-left: 10px;
+    }
+    .btn6.inactive {
+        opacity: 0.5;
+    }
+
+    .btn6:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+  .btn7 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn7 + .btn7 {
+        margin-left: 10px;
+    }
+    .btn7.inactive {
+        opacity: 0.5;
+    }
+
+    .btn7:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+
+  .btn8 {
+    	margin: 30px auto;
+        display: inline-block;
+        width: 180px;
+        padding: 7px;
+        border-radius: 5px;
+
+        color: #fff;
+        cursor: pointer;
+        margin-bottom: 10px;
+    }
+    .btn8 + .btn8 {
+        margin-left: 10px;
+    }
+    .btn8.inactive {
+        opacity: 0.5;
+    }
+
+    .btn8:hover{
+    background: #00ff00;
+  /*background: url(マウスオーバー時に表示させたい背景画像のURL) no-repeat;*/
+}
+
+.clock {
+		text-align: center;
+		font-size: 50px;
+		background-color: #EEE;
+		color: 333;
+		padding: 40px 0 20px;
+	}
+
+a:link{color: #ffffff;}
+a:visited { color: #ffffff; } … 訪問済みのリンク

@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>月報 樟 マンホールポンプ場　運転履歴</title>
+
+    <!-- CSS -->
+    <link rel="stylesheet" href="/static/css/Form2.css">
+    <link href="https://fonts.googleapis.com/earlyaccess/mplus1p.css" rel="stylesheet" />
+
+    <!-- JS Libraries -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="/static/lib/vue.js"></script>
+    <script src="/static/lib/moment-with-locales.min.js"></script>
+    <script src="/static/lib/moment-timezone-with-data-2010-2020.min.js"></script>
+    <script src="/static/js/timeMath.js"></script>
+</head>
+
+<body>
+<div id="form2">
+    <section class="sheet">
+        <h1>{{ title }}</h1>
+        <h2>{{ year }}年　　　　　{{ month }}月{{ date }}日</h2>
+        <form-table class="main" align="center" :columns="columns" :data="dataJson"></form-table>
+    </section>
+</div>
+
+<!-- Vue Template -->
+<script type="text/x-template" id="form-table-template">
+    <div>
+        <table border="1" align="center">
+            <thead>
+                <tr>
+                    <th v-for="(header, key) in columns" :class="'th-' + key">
+                        {{ header }}
+                    </th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr v-for="entry in data" :key="entry.id">
+                    <td v-for="(header, key) in columns" :key="key">
+                        {{ entry[key] }}
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</script>
+
+<script>
+Vue.component('form-table', {
+    template: '#form-table-template',
+    props: {
+        data: Array,
+        columns: Object
+    }
+});
+
+var form2 = new Vue({
+    el: '#form2',
+    data: {
+        regionId: 6,
+        baseUrl: "https://crud2-171605.appspot.com",
+        title: "月報 樟 マンホールポンプ場　運転履歴",
+        subTitle: "",
+        year: moment().year(),
+        month: moment().month() + 1,
+        date: moment().date(),
+        columns: {
+            date: "発生日時",
+            targetName: "データ名称",
+            startTime: "発生時刻",
+            endTime: "停止時刻",
+            upTime: "運転時間",
+            MaxData: "最大電流値"
+        },
+        dataJson: []
+    },
+    created: async function () {
+        const yyyy = this.year.toString();
+        const mm = ('0' + this.month).slice(-2);
+        await this.make_form_paper2(this.baseUrl, yyyy, mm);
+    },
+    methods: {
+        async make_form_paper2(baseUrl, year, month) {
+            try {
+                const response = await $.ajax({
+                    url: `${baseUrl}/month`,
+                    method: 'GET',
+                    dataType: 'json',
+                    data: {
+                        mode: 'e',
+                        year: year,
+                        month: month,
+                        rid: this.regionId
+                    }
+                });
+                this.dataJson = response.datalist || response;
+            } catch (error) {
+                console.error("ERROR: cannot download data", error);
+            }
+        }
+    }
+});
+</script>
+</body>
+</html>
+
