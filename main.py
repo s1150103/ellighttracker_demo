@@ -1,22 +1,32 @@
-from flask import Flask, render_template, request, jsonify, Response
-from flask_cors import CORS
-from decimal import Decimal, ROUND_HALF_UP
-from flask import send_from_directory
+"""
+ELLight Tracker - メインアプリケーション
+
+Google App Engine 上で動作する Flask アプリケーション
+センサーデータの収集・管理・表示を行う
+"""
+
+# 標準ライブラリのインポート
 import json
-from google.cloud import datastore
-from datetime import datetime
 import calendar
 import time
 import os
-import xml.etree.ElementTree as ET
-from datetime import timezone, timedelta
-from collections import defaultdict
 import math
+from datetime import datetime, timezone, timedelta
+from decimal import Decimal, ROUND_HALF_UP
+from collections import defaultdict
+import xml.etree.ElementTree as ET
 
+# Flask関連のインポート
+from flask import Flask, render_template, request, jsonify, Response, send_from_directory
+from flask_cors import CORS
 
-app = Flask(__name__, template_folder="templates",static_folder="static")
-CORS(app)
-datastore_client = datastore.Client()
+# Google Cloud関連のインポート
+from google.cloud import datastore
+
+# Flask アプリケーションの初期化
+app = Flask(__name__, template_folder="templates", static_folder="static")
+CORS(app)  # CORS（Cross-Origin Resource Sharing）を有効化
+datastore_client = datastore.Client()  # Google Cloud Datastore クライアントの初期化
 
 @app.route("/")  # ルートURL
 def home():
